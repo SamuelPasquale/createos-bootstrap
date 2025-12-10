@@ -16,5 +16,29 @@
     "description": "Populate V0 Demo Script & Acceptance Criteria in creation/03-v0.",
     "status": "pending",
     "dependencies": ["T001"]
+  },
+  {
+    "id": "T004",
+    "description": "Design CreateOS-native session startup (Session Manager, consent, persistent memory, audit trace).",
+    "status": "complete",
+    "dependencies": ["T001"]
+  },
+  {
+    "id": "T005",
+    "description": "Prototype Session Manager service with per-session tokens and consent-linked connector handles.",
+    "status": "pending",
+    "dependencies": ["T004"]
+  },
+  {
+    "id": "T006",
+    "description": "Implement persistent, append-only Creation memory API with versioned entries and manual compaction.",
+    "status": "pending",
+    "dependencies": ["T004"]
+  },
+  {
+    "id": "T007",
+    "description": "Ship Resume Creation UX and end-to-end bootstrap + revocation tests (index validation, audit trace).",
+    "status": "pending",
+    "dependencies": ["T004"]
   }
 ]
