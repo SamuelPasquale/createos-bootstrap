@@ -1,7 +1,7 @@
 {
-  "generated_at": "2025-12-10T03:09:30Z",
+  "generated_at": "2025-12-10T03:13:23Z",
   "root": ".",
-  "file_count": 22,
+  "file_count": 23,
   "files": [
     ".github/workflows/refresh-index.yml",
     ".gitignore",
@@ -17,6 +17,7 @@
     "creation/05-memory/memory.md",
     "creation/06-decisions/.gitkeep",
     "creation/06-decisions/github-write-policy.md",
+    "creation/06-decisions/session-start-protocol.md",
     "creation/07-tasks/.gitkeep",
     "creation/07-tasks/tasks.json",
     "creation/08-progress/2025-12-09.md",
