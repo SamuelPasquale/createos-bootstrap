@@ -46,3 +46,56 @@ Behind the scenes:
 
 For full details, see:
 `creation/06-decisions/session-start-protocol.md`.
+
+## Daily Start Sequence (CreateOS)
+
+CreateOS is a stateful environment. Each session must anchor itself to a specific Git commit and the current index.
+
+### 1. Refresh the index
+
+```bash
+python tools/refresh_index.py
+```
+
+This regenerates `.createos/index.json`, the canonical map of the Creation.
+
+### 2. Capture the current commit SHA
+
+```bash
+git rev-parse HEAD
+```
+
+Copy this SHA. It identifies the exact state of the system.
+
+### 3. Start a CreateOS session
+
+Provide to the system:
+
+- The latest SHA  
+- A request to load the current project state  
+
+Example:
+
+> Latest SHA: `<sha>`.  
+> Load the latest progress log and current project state.
+
+### 4. What CreateOS reconstructs
+
+Using `.createos/index.json`, the system loads:
+
+- Creation definition (`creation.yaml`)
+- V0 specs (`creation/03-v0/*.md`)
+- Memory (`creation/05-memory/memory.md`)
+- Decisions (`creation/06-decisions/*.md`)
+- Tasks (`creation/07-tasks/tasks.json`)
+- Progress logs (`creation/08-progress/*.md`)
+
+### 5. Begin work
+
+Once the environment is loaded:
+
+> "Let's build."
+
+For the full detailed protocol, see  
+`creation/06-decisions/session-start-protocol.md`.
+
