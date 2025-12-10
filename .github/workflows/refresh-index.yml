@@ -5,22 +5,22 @@ on:
     branches:
       - main
 
+# Explicitly allow this workflow to write to the repo
+permissions:
+  contents: write
+
 jobs:
   generate-index:
     runs-on: ubuntu-latest
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Set up Python
-        uses: actions/setup-python@v4
+        uses: actions/setup-python@v5
         with:
           python-version: '3.11'
-
-      - name: Install dependencies (if needed)
-        run: |
-          echo "No dependencies required for refresh_index.py"
 
       - name: Run index generator
         run: python tools/refresh_index.py
@@ -29,7 +29,9 @@ jobs:
         run: |
           git config --local user.email "actions@github.com"
           git config --local user.name "GitHub Actions"
-          git add .createos/index.json
+
+          git add .createos/index.json || echo "No index file to add yet."
+
           if git diff --cached --quiet; then
             echo "No changes to commit."
           else
