@@ -1,0 +1,27 @@
+creation_name: CreateOS Bootstrap
+creation_id: C01
+version: 0.1.0
+
+description: >
+  The first working prototype of CreateOS. This Creation represents the
+  self-bootstrapping environment used to design and build the AI-native
+  operating system.
+
+goals:
+  - Establish a minimal Creation filesystem backed by Git.
+  - Implement deterministic tools for memory and task management.
+  - Demonstrate a V0 demo where CreateOS modifies its own artifacts.
+
+paths:
+  goals_dir: creation/01-goals
+  roadmap_dir: creation/02-roadmap
+  v0_dir: creation/03-v0
+  artifacts_dir: creation/04-artifacts
+  memory_file: creation/05-memory/memory.md
+  decisions_dir: creation/06-decisions
+  tasks_file: creation/07-tasks/tasks.json
+
+metadata:
+  created_at: 2025-12-09
+  last_updated: 2025-12-09
+  status: active
