@@ -1,192 +1,74 @@
-# Session Start Protocol – C01: CreateOS Bootstrap (v0.2)
+# Session Start Protocol — C01: CreateOS Bootstrap (V0)
 
-This protocol defines the authoritative, deterministic workflow for starting a new work session with **CreateOS Bootstrap (C01)** using ChatGPT + GitHub.
+**Status:** V0 (temporary). This protocol documents the deterministic, auditable boot sequence required for CreateOS Bootstrap given current platform constraints. It will be replaced by a CreateOS-native startup sequence in v1.
 
-It ensures that every session reconstructs project state from the same sources of truth, with no reliance on memory, guesswork, or manual navigation of the repository.
+## Purpose
 
----
+Provide a single, deterministic way to start a CreateOS Architect session that has read access to the repository and can reconstruct Creation state.
 
-## 0. Repository Attachment (Required)
+## Roles
 
-Before any session can begin, the assistant must be attached to the correct GitHub repository:
+- **Architect** — ChatGPT Project (cognitive layer).  
+- **Developer** — Codex (developer layer, repo write/PR executor).
 
-> **Active repo:** `SamuelPasquale/createos-bootstrap`
+## Preconditions
 
-If the repository is not attached, the assistant must not attempt state reconstruction and must instead instruct the user to connect the repo through the GitHub integration.
+- Repository: `SamuelPasquale/createos-bootstrap` (branch: `main`).  
+- `.createos/index.json` is maintained by CI and available in the repo.  
+- The repository is reachable via the GitHub connector.
 
-This step is mandatory because ChatGPT sessions do not persist repository attachments across chats.
+## Canonical V0 Steps
 
----
+1. **Create a repo-enabled chat outside the CreateOS Project**  
+   - Attach GitHub via Company knowledge and confirm `SamuelPasquale/createos-bootstrap`.  
+   - Verify: fetch `README.md` and `.createos/index.json`.
 
-## 1. Preconditions
+2. **Move the repo-enabled chat into the CreateOS Project**  
+   - After moving, this chat serves as the persistent **Architect + Repo Access** session. It must validate repository access before proceeding.
 
-- Repository: `SamuelPasquale/createos-bootstrap`
-- Branch: `main` (unless otherwise specified)
-- The index file `.createos/index.json` is generated and maintained by CI.
-- All Creation state lives under the `creation/` directory.
-- All progress logs live under: `creation/08-progress/`.
+3. **Human: Provide the minimal bootstrap**  
+   - Provide the latest commit SHA from `main` and paste the canonical boot message:
+     ```
+     Latest SHA: <paste HEAD SHA>
+     Load the repo.
+     ```
 
----
+4. **Assistant: Deterministic reconstruction**  
+   Once the boot message is received, the Architect assistant must:
+   - Validate repository attachment and confirm `repo_full_name = SamuelPasquale/createos-bootstrap`.
+   - Fetch commit metadata for the provided SHA and confirm SHA validity.
+   - Load `.createos/index.json` (via fetch_file) or request a pasted index if fetch fails.
+   - Using the index, enumerate and load:
+     - `creation.yaml`
+     - V0 specs (`creation/03-v0/*`)
+     - Memory (`creation/05-memory/memory.md`)
+     - Decisions (`creation/06-decisions/*`)
+     - Tasks (`creation/07-tasks/tasks.json`)
+     - Progress logs (`creation/08-progress/*.md`) — choose most recent
+   - Reconstruct cognitive state (goals, progress, open tasks, decisions).
+   - Declare readiness with:
+     1. Confirmation of SHA
+     2. Summary of last progress log
+     3. List of open tasks
+     4. Proposed next actions
 
-## 2. Human Steps at the Start of Each Session
+5. **Developer flow (Codex)**  
+   - For file changes, the Architect produces a self-contained instruction package.  
+   - The Developer (Codex) reads the live repo, shows diffs, opens a branch and PR for review.
 
-These steps are minimal and must be performed for every new session.
+## Error handling
 
-### **Step 1 — Get the latest commit SHA**
+- **No active GitHub attachment**: refuse and respond:
+  > No active GitHub repository attached. Please attach `SamuelPasquale/createos-bootstrap` via the GitHub integration.
 
-From GitHub or local git:
+- **Invalid or unreachable SHA**: ask human to reconfirm via `git rev-parse HEAD`.
 
-- Navigate to the `main` branch  
-- Copy the HEAD SHA (full is preferred; short SHA acceptable)
+- **Failure to fetch `.createos/index.json`**: ask the human to paste the index and treat the pasted copy as authoritative.
 
-### **Step 2 — Open a new ChatGPT session in the CreateOS project**
+- **Missing required files**: list missing files and either continue in degraded mode or halt if critical.
 
-Ensure you are inside the same ChatGPT “CreateOS Project” environment so memory + repo tooling behaves consistently.
+## V0 → Future
 
-### **Step 3 — Provide the minimal boot message**
+This protocol is intentionally conservative; it prioritizes determinism and auditability. It is a temporary bootstrapping pattern that must be replaced in v1 by an integrated CreateOS startup sequence with persistent, first-class memory and direct backend mounting.
 
-Paste:
-
-> Latest SHA: `<paste here>`  
-> Load the repo.
-
-This is the canonical invocation.
-
-Nothing more is required.
-
----
-
-## 3. Expected Assistant Behavior
-
-Once the assistant receives the repo identifier and the SHA, it must perform the following steps:
-
-### **Step 3.1 — Validate repository attachment**
-
-Assistant confirms:
-
-- The GitHub integration is active  
-- Repo access is available  
-- `repo_full_name = SamuelPasquale/createos-bootstrap`  
-
-If not attached, the assistant must immediately halt and instruct the user to connect the repo.
-
-### **Step 3.2 — Load the commit**
-
-Using GitHub’s `fetch_commit` capability:
-
-- Retrieve commit metadata  
-- Confirm SHA validity  
-- Confirm which files were modified (diff)
-
-### **Step 3.3 — Load `.createos/index.json`**
-
-Using `fetch_file` (if supported by the GitHub connector) or failing that, request the user to paste the index.
-
-The index provides:
-
-- The canonical file list  
-- Repository structure  
-- Deterministic path resolution for all Creation artifacts  
-
-If live retrieval fails due to connector limitations, the assistant must:
-
-- Ask the user for a pasted copy of the index  
-- Treat the pasted index as authoritative for the session
-
-### **Step 3.4 — Enumerate and load key project artifacts**
-
-Using the index, the assistant identifies and reconstructs state from:
-
-- `creation.yaml`  
-- V0 specs:
-  - `creation/03-v0/v0-functional-spec.md`
-  - `creation/03-v0/v0-demo-criteria.md`
-- Memory:
-  - `creation/05-memory/memory.md`
-- Decisions:
-  - `creation/06-decisions/*.md`
-- Tasks:
-  - `creation/07-tasks/tasks.json`
-- Progress logs:
-  - `creation/08-progress/*.md`  
-  - Select the most recent by filename date ordering
-
-### **Step 3.5 — Restore cognitive state**
-
-The assistant reconstructs:
-
-- Current goals and intent  
-- Progress-to-date  
-- Outstanding tasks and bottlenecks  
-- Last session’s decisions  
-- Expected next steps  
-
-### **Step 3.6 — Declare readiness**
-
-Assistant responds with:
-
-1. Confirmation of the SHA being used  
-2. Summary of last progress log  
-3. List of open tasks  
-4. Proposed next actions  
-
-Once this message is delivered, the session is “online.”
-
----
-
-## 4. Error Handling Rules
-
-### **4.1 Missing repository attachment**
-
-Assistant must refuse to proceed and respond:
-
-> No active GitHub repository attached.  
-> Please attach `SamuelPasquale/createos-bootstrap` via the GitHub integration.
-
-### **4.2 Invalid or unreachable SHA**
-
-Assistant must ask the user to:
-
-> Reconfirm the SHA via `git rev-parse HEAD` or GitHub UI.
-
-### **4.3 Failure to load `.createos/index.json`**
-
-If direct GitHub file load fails:
-
-- Assistant requests:  
-  > “Please paste `.createos/index.json` into the chat.”
-
-- User paste becomes the canonical index for the session.
-
-### **4.4 Missing required files**
-
-Assistant states explicitly which files are absent and continues in degraded mode (or halts if the missing file is critical for reconstruction).
-
----
-
-## 5. Notes and Future Automation
-
-- This protocol is designed for **V0**, recognizing current GitHub tool constraints.
-- Future versions of CreateOS may:
-  - Fetch `.createos/index.json` directly without fallback  
-  - Auto-detect the active repo  
-  - Attach the repo automatically on session open  
-  - Eliminate the SHA step via automatic HEAD tracking  
-
-At present, this document represents the only **deterministic**, **auditable**, and **repeatable** boot sequence for working on CreateOS Bootstrap (C01).
-
----
-
-## 6. Summary
-
-To start any session:
-
-1. Attach repo → `SamuelPasquale/createos-bootstrap`  
-2. Get latest SHA  
-3. Paste:  
-   > Latest SHA: `<sha>`  
-   > Load the repo.  
-4. Assistant reconstructs full state  
-5. Assistant proposes next steps  
-
-This is the canonical Session Start Protocol for C01.
+(End of protocol)
