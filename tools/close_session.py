@@ -105,6 +105,9 @@ def append_memory_entry(date_iso, summary, changes):
             ],
             check=True,
         )
+    # CLI fallback: pass JSON as single argument
+    try:
+        subprocess.run([sys.executable, MEMORY_SCRIPT, json.dumps(entry)], check=True)
         return True
     except Exception as e:
         print("Warning: CLI memory append failed:", e, file=sys.stderr)

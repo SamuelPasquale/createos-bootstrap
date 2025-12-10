@@ -1,7 +1,7 @@
 {
-  "generated_at": "2025-12-10T21:07:18Z",
+  "generated_at": "2025-12-10T22:24:55Z",
   "root": ".",
-  "file_count": 23,
+  "file_count": 26,
   "files": [
     ".github/workflows/refresh-index.yml",
     ".gitignore",
@@ -13,6 +13,7 @@
     "creation/03-v0/v0-demo-criteria.md",
     "creation/03-v0/v0-functional-spec.md",
     "creation/04-artifacts/.gitkeep",
+    "creation/04-artifacts/session-manager-mvp.md",
     "creation/05-memory/.gitkeep",
     "creation/05-memory/memory.md",
     "creation/06-decisions/.gitkeep",
@@ -21,9 +22,11 @@
     "creation/07-tasks/.gitkeep",
     "creation/07-tasks/tasks.json",
     "creation/08-progress/2025-12-09.md",
+    "creation/08-progress/2025-12-10.md",
     "references/.gitkeep",
     "tools/.gitkeep",
     "tools/add_memory_entry.py",
+    "tools/close_session.py",
     "tools/refresh_index.py",
     "tools/tasks.py"
   ]
