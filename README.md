@@ -51,6 +51,14 @@ For full details, see:
 
 CreateOS is a stateful environment. Each session must anchor itself to a specific Git commit and the current index.
 
+### 0. Attach the GitHub repository
+
+Ensure the GitHub integration is active for this ChatGPT project and that the correct repository is selected as the active Creation:
+
+> Active repo: `SamuelPasquale/createos-bootstrap`
+
+Without an attached repository, CreateOS cannot read `.createos/index.json` or any Creation files and cannot reconstruct state.
+
 ### 1. Refresh the index
 
 ```bash
