@@ -1,0 +1,38 @@
+name: Refresh CreateOS Index
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  generate-index:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies (if needed)
+        run: |
+          echo "No dependencies required for refresh_index.py"
+
+      - name: Run index generator
+        run: python tools/refresh_index.py
+
+      - name: Commit and push updated index
+        run: |
+          git config --local user.email "actions@github.com"
+          git config --local user.name "GitHub Actions"
+          git add .createos/index.json
+          if git diff --cached --quiet; then
+            echo "No changes to commit."
+          else
+            git commit -m "Auto-update CreateOS index"
+            git push
+          fi
