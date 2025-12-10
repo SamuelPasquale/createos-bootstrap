@@ -13,7 +13,9 @@ TASKS_FILE = os.path.join(REPO_ROOT, "creation", "07-tasks", "tasks.json")
 MEMORY_SCRIPT = os.path.join(REPO_ROOT, "tools", "add_memory_entry.py")
 
 # Ensure we can import local tools when running from arbitrary working directories
-sys.path.insert(0, REPO_ROOT)
+# Insert REPO_ROOT at front of sys.path so "from tools.add_memory_entry import ..." resolves
+if REPO_ROOT not in sys.path:
+    sys.path.insert(0, REPO_ROOT)
 
 # Preferred import helpers (if available)
 try:
@@ -105,9 +107,6 @@ def append_memory_entry(date_iso, summary, changes):
             ],
             check=True,
         )
-    # CLI fallback: pass JSON as single argument
-    try:
-        subprocess.run([sys.executable, MEMORY_SCRIPT, json.dumps(entry)], check=True)
         return True
     except Exception as e:
         print("Warning: CLI memory append failed:", e, file=sys.stderr)
