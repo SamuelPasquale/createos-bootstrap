@@ -1,0 +1,20 @@
+[
+  {
+    "id": "T001",
+    "description": "Scaffold the Creation filesystem and core descriptor (creation.yaml).",
+    "status": "complete",
+    "dependencies": []
+  },
+  {
+    "id": "T002",
+    "description": "Populate V0 Functional Spec in creation/03-v0.",
+    "status": "pending",
+    "dependencies": ["T001"]
+  },
+  {
+    "id": "T003",
+    "description": "Populate V0 Demo Script & Acceptance Criteria in creation/03-v0.",
+    "status": "pending",
+    "dependencies": ["T001"]
+  }
+]
