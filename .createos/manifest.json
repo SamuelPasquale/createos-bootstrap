@@ -1,0 +1,8 @@
+{
+  "creation_id": "C01",
+  "expected_active_repo": "SamuelPasquale/createos-bootstrap",
+  "default_branch": "main",
+  "workflow_version": "v0",
+  "session_bootstrap_example": "Latest SHA: <HEAD_SHA>\nLoad the repo.",
+  "note": "V0 temporary workflow: Start with a GitHub-enabled chat outside the CreateOS Project, attach repo, then move the chat into the CreateOS Project so the Architect retains repo access. This manifest documents the temporary flow and will be removed/updated when CreateOS implements a native startup sequence."
+}

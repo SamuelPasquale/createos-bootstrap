@@ -1,118 +1,89 @@
 # CreateOS Bootstrap (C01)
 
-This repository hosts the first working Creation for CreateOS: **C01 – CreateOS Bootstrap**.
+**CreateOS — Cognitive Creation Environment (CCE).**  
+This repository holds **C01 — CreateOS Bootstrap**: the minimal, Git-backed prototype that proves the CreateOS abstractions (Creations, memory, deterministic tools, and agentic execution).
 
-The purpose of this Creation is to:
+---
 
-- Establish a minimal Git-backed filesystem for CreateOS.
-- Implement deterministic tools for memory and task management.
-- Demonstrate a V0 demo where CreateOS modifies its own artifacts and specifications.
+## Purpose
 
-## Structure
+C01 demonstrates a working V0 of the CreateOS model:
 
-- `creation.yaml` – Top-level descriptor for the Creation.
-- `creation/` – All state for this Creation.
-  - `01-goals/` – High-level goals and intent.
-  - `02-roadmap/` – Roadmap documents (V0 → V1 → Platform → Enterprise).
-  - `03-v0/` – V0 functional spec, demo script, acceptance criteria.
-  - `04-artifacts/` – Generated artifacts (design docs, schemas, etc.).
-  - `05-memory/` – Structured memory log (`memory.md`).
-  - `06-decisions/` – Architectural decisions and rationale.
-  - `07-tasks/` – Task graph (`tasks.json`).
-- `tools/` – Scripts and utilities for operating on the Creation.
-- `references/` – Strategic and thesis documents used for context.
+- A Git-backed artifact graph for a single **Creation**.  
+- Deterministic tooling for memory and task management.  
+- A V0 runtime where an Architect (ChatGPT Project) and a Developer (Codex) collaborate to read, design, and modify the backend repo.  
 
-This repo is intentionally narrow in scope. It exists to **bootstrap** CreateOS itself.
+> **Important (V0)** — The session bootstrap workflow documented below is a temporary, platform-driven workaround needed to bootstrap V0. We will replace this with a proprietary CreateOS startup sequence in early v1 once the runtime and persistent memory layers are implemented.
 
+---
 
-## Working on This Creation (Daily Session Start)
+## Repository structure (authoritative)
 
-To resume work on CreateOS Bootstrap (C01) in a new ChatGPT session:
+- `creation.yaml` — Creation descriptor (metadata, owners, status).  
+- `creation/` — All project state:
+  - `01-goals/` — high-level goals and intent.
+  - `02-roadmap/` — roadmap (V0 → V1 → platform).
+  - `03-v0/` — V0 functional spec and demo criteria.
+  - `04-artifacts/` — generated artifacts and specs.
+  - `05-memory/` — structured, append-only memory (`memory.md`).
+  - `06-decisions/` — architectural decisions and protocols.
+  - `07-tasks/` — task graph (`tasks.json`).
+  - `08-progress/` — dated session logs.
+- `tools/` — operational scripts (index refresh, helpers).
+- `.createos/index.json` — canonical file index (CI generated).
+- `.createos/manifest.json` — **(new)** lightweight manifest describing repo metadata and V0 workflow (created by this PR).
 
-1. Open this repo on GitHub (`main` branch) and copy the **latest commit SHA**.
-2. Open a new chat in the CreateOS ChatGPT Project.
-3. Paste the SHA and say something like:
+---
 
-   > Latest SHA: `<paste here>`  
-   > Load the latest progress log and current project state.
+## Canonical V0 Bootstrapping Workflow (Architect + Codex)
 
-Behind the scenes:
+This workflow is intentionally **temporary** and designed to work with current ChatGPT / Codex platform constraints. It is the official way to start deterministic CreateOS sessions for C01 until we ship a CreateOS-native startup flow.
 
-- `.createos/index.json` (auto-maintained by GitHub Actions) is used as the
-  canonical file index.
-- Daily progress logs live under `creation/08-progress/`.
-- The assistant uses the index + latest progress log to restore context and
-  propose the next action.
+**Roles**
+- **Architect (this ChatGPT Project)** — cognitive, long-horizon reasoning: designs creation intents, session protocols, and briefs Codex.  
+- **Developer (Codex / GitHub-enabled chat)** — reads the live repo, generates diffs, and opens PRs.
 
-For full details, see:
-`creation/06-decisions/session-start-protocol.md`.
+**Bootstrapping steps (V0)**
 
-## Daily Start Sequence (CreateOS)
+1. **Create a repo-enabled chat outside the CreateOS Project**  
+   - Open a new ChatGPT chat (not the Project).  
+   - Use **Company knowledge → GitHub** to attach `SamuelPasquale/createos-bootstrap`. Confirm read access (e.g., fetch `README.md`).  
+2. **Prepare the Architect session**  
+   - Once the external chat has GitHub attached, **move the chat into the CreateOS Project**. The moved chat retains the GitHub source and becomes the persistent **Architect + Repo Access** session.  
+   - This session is the canonical Architect workspace for V0. It runs the session-start protocol (below) to declare readiness.  
+3. **Architect designs & instructs Codex**  
+   - Architect produces a precise, self-contained instruction package for Codex describing what files to change and why.  
+4. **Codex executes**  
+   - In a Codex-enabled developer chat (which has continuous GitHub access), paste the Architect’s instruction package. Codex will read the live repo, produce per-file diffs, open a branch, and create a PR for review.  
+5. **Review & merge**  
+   - The Architect reviews the PR, requests changes if needed, and merges when ready. CI (if present) updates `.createos/index.json` automatically.
 
-CreateOS is a stateful environment. Each session must anchor itself to a specific Git commit and the current index.
+**Notes & fallbacks**
+- If the GitHub connector cannot be attached, the fallback is to paste `.createos/index.json` (the CI-generated index) into the Architect chat and continue. The pasted index becomes the canonical index for that session.  
+- This V0 process is explicitly temporary. One of the early v1 deliverables is to design a **CreateOS-native session bootstrap** that provides persistent memory, an embedded startup protocol, and direct mounting of the backend without this dual-chat workaround.
 
-### Troubleshooting: ChatGPT cannot read the repository
+**Quick commands**
+- Refresh the canonical index (if you modify repo files): `python tools/refresh_index.py`
+- Copy the HEAD SHA of `main`: `git rev-parse HEAD`
 
-If a standard ChatGPT conversation cannot see files ("I can't access your repository"), follow these steps:
+---
 
-1. Use a **ChatGPT Project** instead of a plain chat so the GitHub connector can mount the repo.
-2. In the Project sidebar, verify the **Active repository** is `SamuelPasquale/createos-bootstrap`. If not, attach it and reload the chat.
-3. Ask the assistant to list the root files (e.g., `ls`) to confirm access before giving work instructions.
-4. If access is still blocked, start a new Project chat and re-attach the repository; ChatGPT-only conversations without a Project cannot read repo files.
+## Where to find authoritative docs
 
-### 0. Attach the GitHub repository
+- Session protocol (V0): `creation/06-decisions/session-start-protocol.md`  
+- Memory model: `creation/05-memory/memory.md`  
+- Tools & scripts: `tools/refresh_index.py`, `tools/add_memory_entry.py`
 
-Ensure the GitHub integration is active for this ChatGPT project and that the correct repository is selected as the active Creation:
+---
 
-> Active repo: `SamuelPasquale/createos-bootstrap`
+## Philosophy
 
-Without an attached repository, CreateOS cannot read `.createos/index.json` or any Creation files and cannot reconstruct state.
+CreateOS is a **Cognitive Creation Environment (CCE)**: we work on *Creations*, not files. This repo is a narrow bootstrap proving the architecture for long-term, human+AI co-creation.
 
-### 1. Refresh the index
+**Ritual**: Once a session is loaded and online, the Architect starts with:
 
-```bash
-python tools/refresh_index.py
-```
+> “Let’s build.”
 
-This regenerates `.createos/index.json`, the canonical map of the Creation.
+---
 
-### 2. Capture the current commit SHA
-
-```bash
-git rev-parse HEAD
-```
-
-Copy this SHA. It identifies the exact state of the system.
-
-### 3. Start a CreateOS session
-
-Provide to the system:
-
-- The latest SHA  
-- A request to load the current project state  
-
-Example:
-
-> Latest SHA: `<sha>`.  
-> Load the latest progress log and current project state.
-
-### 4. What CreateOS reconstructs
-
-Using `.createos/index.json`, the system loads:
-
-- Creation definition (`creation.yaml`)
-- V0 specs (`creation/03-v0/*.md`)
-- Memory (`creation/05-memory/memory.md`)
-- Decisions (`creation/06-decisions/*.md`)
-- Tasks (`creation/07-tasks/tasks.json`)
-- Progress logs (`creation/08-progress/*.md`)
-
-### 5. Begin work
-
-Once the environment is loaded:
-
-> "Let's build."
-
-For the full detailed protocol, see  
-`creation/06-decisions/session-start-protocol.md`.
-
+(End of README)
