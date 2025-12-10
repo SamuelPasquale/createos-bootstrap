@@ -12,6 +12,9 @@ PROGRESS_DIR = os.path.join(REPO_ROOT, "creation", "08-progress")
 TASKS_FILE = os.path.join(REPO_ROOT, "creation", "07-tasks", "tasks.json")
 MEMORY_SCRIPT = os.path.join(REPO_ROOT, "tools", "add_memory_entry.py")
 
+# Ensure we can import local tools when running from arbitrary working directories
+sys.path.insert(0, REPO_ROOT)
+
 # Preferred import helpers (if available)
 try:
     from tools.add_memory_entry import append_entry as _append_entry_func
@@ -87,6 +90,21 @@ def append_memory_entry(date_iso, summary, changes):
     except Exception as e:
         print("Warning: import-based memory append failed:", e, file=sys.stderr)
 
+    # CLI fallback: use add_memory_entry.py with explicit flags
+    try:
+        subprocess.run(
+            [
+                sys.executable,
+                MEMORY_SCRIPT,
+                "--event",
+                "session_close",
+                "--reasoning",
+                summary,
+                "--changes",
+                json.dumps(changes),
+            ],
+            check=True,
+        )
     # CLI fallback: pass JSON as single argument
     try:
         subprocess.run([sys.executable, MEMORY_SCRIPT, json.dumps(entry)], check=True)
