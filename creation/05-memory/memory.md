@@ -17,3 +17,11 @@ changes:
   - dir_created: creation/05-memory
   - dir_created: creation/06-decisions
   - dir_created: creation/07-tasks
+
+### [2025-12-10T00:00:00Z]
+event: Defined CreateOS-native session startup and persistent memory MVP.
+reasoning: Replace the dual-chat V0 workaround with a deterministic, auditable bootstrap powered by a Session Manager, scoped consent, and append-only memory.
+changes:
+  - decision_updated: creation/06-decisions/session-start-protocol.md
+  - artifact_added: creation/04-artifacts/session-manager-mvp.md
+  - readme_updated: README.md

@@ -1,74 +1,77 @@
-# Session Start Protocol — C01: CreateOS Bootstrap (V0)
+# Session Start Protocol — C01: CreateOS Bootstrap (CreateOS-Native)
 
-**Status:** V0 (temporary). This protocol documents the deterministic, auditable boot sequence required for CreateOS Bootstrap given current platform constraints. It will be replaced by a CreateOS-native startup sequence in v1.
+**Status:** Transition to CreateOS-native startup. This protocol replaces the dual-chat V0 workaround with a deterministic, auditable session bootstrap backed by a Session Manager, scoped credentials, and first-class Creation memory.
 
 ## Purpose
 
-Provide a single, deterministic way to start a CreateOS Architect session that has read access to the repository and can reconstruct Creation state.
+Provide a one-click, CreateOS-native way to start or resume an Architect session with:
+
+- Persistent project memory across sessions
+- Direct mounting of backend artifacts (repo + storage) with explicit authorization
+- Deterministic, auditable session traces (index validation, commit SHA, memory snapshot)
+- Revocable, least-privilege connector consent
 
 ## Roles
 
-- **Architect** — ChatGPT Project (cognitive layer).  
+- **Architect** — ChatGPT Project (cognitive layer).
 - **Developer** — Codex (developer layer, repo write/PR executor).
+- **Session Manager** — Small CreateOS service issuing per-session tokens and exposing mount metadata.
+- **Consent UI** — Human-facing, auditable consent surface for connector scopes.
 
 ## Preconditions
 
-- Repository: `SamuelPasquale/createos-bootstrap` (branch: `main`).  
-- `.createos/index.json` is maintained by CI and available in the repo.  
-- The repository is reachable via the GitHub connector.
+- Repository: `SamuelPasquale/createos-bootstrap` (branch: `main`).
+- Session Manager reachable and configured with:
+  - Signing key for short-lived session tokens
+  - Repo metadata (repo name, default branch, allowed connectors)
+  - Memory backend endpoint (append-only store)
+- Consent UI wired to Session Manager for human approval and revocation.
 
-## Canonical V0 Steps
+## Canonical CreateOS-Native Steps
 
-1. **Create a repo-enabled chat outside the CreateOS Project**  
-   - Attach GitHub via Company knowledge and confirm `SamuelPasquale/createos-bootstrap`.  
-   - Verify: fetch `README.md` and `.createos/index.json`.
+1. **Request session (Architect → Session Manager)**
+   - Input: Creation ID (`C01`), requested scopes (repo read/write, memory read/write), optional storage mounts.
+   - Output: Signed session token (JWT), session ID, repo metadata (repo URL, default branch, last indexed commit), memory endpoint URL.
 
-2. **Move the repo-enabled chat into the CreateOS Project**  
-   - After moving, this chat serves as the persistent **Architect + Repo Access** session. It must validate repository access before proceeding.
+2. **Consent & least-privilege grant (Human → Consent UI)**
+   - Human is shown requested scopes, duration, and connector targets.
+   - Human approves or rejects. On approval, Session Manager records an auditable grant (session ID, scopes, expiry, actor) and returns a connector authorization handle.
 
-3. **Human: Provide the minimal bootstrap**  
-   - Provide the latest commit SHA from `main` and paste the canonical boot message:
-     ```
-     Latest SHA: <paste HEAD SHA>
-     Load the repo.
-     ```
+3. **Deterministic bootstrap (Architect)**
+   - Validate token signature, expiry, and scopes.
+   - Fetch repo metadata from Session Manager; confirm branch and latest indexed commit SHA.
+   - Mount repo using the provided connector handle; mount memory endpoint read/write.
+   - Load `.createos/index.json` (via mounted repo). On failure, request an index from Session Manager.
+   - Enumerate required files via index (creation.yaml, specs, memory, decisions, tasks, progress) and rehydrate cognitive state.
+   - Capture a bootstrap trace: session ID, commit SHA, index checksum, memory snapshot version, timestamp.
 
-4. **Assistant: Deterministic reconstruction**  
-   Once the boot message is received, the Architect assistant must:
-   - Validate repository attachment and confirm `repo_full_name = SamuelPasquale/createos-bootstrap`.
-   - Fetch commit metadata for the provided SHA and confirm SHA validity.
-   - Load `.createos/index.json` (via fetch_file) or request a pasted index if fetch fails.
-   - Using the index, enumerate and load:
-     - `creation.yaml`
-     - V0 specs (`creation/03-v0/*`)
-     - Memory (`creation/05-memory/memory.md`)
-     - Decisions (`creation/06-decisions/*`)
-     - Tasks (`creation/07-tasks/tasks.json`)
-     - Progress logs (`creation/08-progress/*.md`) — choose most recent
-   - Reconstruct cognitive state (goals, progress, open tasks, decisions).
-   - Declare readiness with:
-     1. Confirmation of SHA
-     2. Summary of last progress log
-     3. List of open tasks
-     4. Proposed next actions
+### Step 3.x — Fast path: LATEST.json
+If present, **creation/08-progress/LATEST.json** is the fast-path for reconstructing the previous session. The Architect must load this file first and treat it as the canonical, human-approved summary of the last session (including `date`, `file`, `sha`, `summary`, and `next_steps`). If `LATEST.json` is missing or invalid, fall back to selecting the most recent dated file under `creation/08-progress/` by filename ordering.
 
-5. **Developer flow (Codex)**  
-   - For file changes, the Architect produces a self-contained instruction package.  
-   - The Developer (Codex) reads the live repo, shows diffs, opens a branch and PR for review.
+4. **Developer flow (Codex)**
+   - Receives the Architect’s instruction package plus session token for scoped repo/memory access.
+   - Performs changes, commits, and returns PR. The session ID is attached to commit metadata for audit.
+
+5. **Revocation & rotation**
+   - Human can revoke the session via Consent UI; Session Manager invalidates the token and connector handle.
+   - Architect handles revocation errors by halting mutations and requesting a new session.
 
 ## Error handling
 
-- **No active GitHub attachment**: refuse and respond:
-  > No active GitHub repository attached. Please attach `SamuelPasquale/createos-bootstrap` via the GitHub integration.
+- **Token validation failure**: abort bootstrap; request a fresh session from Session Manager.
+- **Consent not granted**: surface the missing scopes; do not proceed.
+- **Index unavailable**: request an authoritative index snapshot from Session Manager; log degraded mode.
+- **Memory endpoint unavailable**: continue in read-only mode with explicit warning; block writes until restored.
 
-- **Invalid or unreachable SHA**: ask human to reconfirm via `git rev-parse HEAD`.
+## Auditability requirements
 
-- **Failure to fetch `.createos/index.json`**: ask the human to paste the index and treat the pasted copy as authoritative.
+- Every session stores a bootstrap trace containing session ID, issued-at, commit SHA, index checksum, memory version, and approved scopes.
+- Connector grants include actor, timestamp, scope list, and expiry; revocations are recorded with reason.
+- Memory writes are versioned and append-only; each write links to session ID and commit SHA (if present).
 
-- **Missing required files**: list missing files and either continue in degraded mode or halt if critical.
+## Transitional guidance
 
-## V0 → Future
-
-This protocol is intentionally conservative; it prioritizes determinism and auditability. It is a temporary bootstrapping pattern that must be replaced in v1 by an integrated CreateOS startup sequence with persistent, first-class memory and direct backend mounting.
+- The V0 dual-chat pattern is deprecated. All new work should use the CreateOS-native flow above.
+- If Session Manager is unavailable, fall back to V0 only to unblock critical fixes; record the fallback in the progress log.
 
 (End of protocol)
