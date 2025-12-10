@@ -51,6 +51,15 @@ For full details, see:
 
 CreateOS is a stateful environment. Each session must anchor itself to a specific Git commit and the current index.
 
+### Troubleshooting: ChatGPT cannot read the repository
+
+If a standard ChatGPT conversation cannot see files ("I can't access your repository"), follow these steps:
+
+1. Use a **ChatGPT Project** instead of a plain chat so the GitHub connector can mount the repo.
+2. In the Project sidebar, verify the **Active repository** is `SamuelPasquale/createos-bootstrap`. If not, attach it and reload the chat.
+3. Ask the assistant to list the root files (e.g., `ls`) to confirm access before giving work instructions.
+4. If access is still blocked, start a new Project chat and re-attach the repository; ChatGPT-only conversations without a Project cannot read repo files.
+
 ### 0. Attach the GitHub repository
 
 Ensure the GitHub integration is active for this ChatGPT project and that the correct repository is selected as the active Creation:
