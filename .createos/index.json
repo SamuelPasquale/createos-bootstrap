@@ -1,8 +1,9 @@
 {
-  "generated_at": "2025-12-11T21:25:00Z",
+  "generated_at": "2025-12-11T21:31:00Z",
   "root": ".",
-  "file_count": 36,
+  "file_count": 37,
   "files": [
+    ".github/agents/createos-architect.agent.md",
     ".github/agents/createos-developer.agent.md",
     ".github/workflows/refresh-index.yml",
     ".gitignore",
