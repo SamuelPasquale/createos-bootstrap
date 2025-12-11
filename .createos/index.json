@@ -1,7 +1,7 @@
 {
-  "generated_at": "2025-12-11T21:19:37Z",
+  "generated_at": "2025-12-11T21:23:17Z",
   "root": ".",
-  "file_count": 32,
+  "file_count": 33,
   "files": [
     ".github/workflows/refresh-index.yml",
     ".gitignore",
@@ -13,6 +13,7 @@
     "creation/03-v0/v0-demo-criteria.md",
     "creation/03-v0/v0-functional-spec.md",
     "creation/04-artifacts/.gitkeep",
+    "creation/04-artifacts/agent-prompts/architect-copilot-adapter.md",
     "creation/04-artifacts/agent-prompts/architect-prompt.md",
     "creation/04-artifacts/agent-prompts/developer-prompt.md",
     "creation/04-artifacts/archive/c01-architecture-legacy.md",
