@@ -1,7 +1,7 @@
 {
-  "generated_at": "2025-12-11T21:24:26Z",
+  "generated_at": "2025-12-11T21:25:00Z",
   "root": ".",
-  "file_count": 35,
+  "file_count": 36,
   "files": [
     ".github/agents/createos-developer.agent.md",
     ".github/workflows/refresh-index.yml",
@@ -14,6 +14,7 @@
     "creation/03-v0/v0-demo-criteria.md",
     "creation/03-v0/v0-functional-spec.md",
     "creation/04-artifacts/.gitkeep",
+    "creation/04-artifacts/agent-prompts/README.md",
     "creation/04-artifacts/agent-prompts/architect-copilot-adapter.md",
     "creation/04-artifacts/agent-prompts/architect-prompt.md",
     "creation/04-artifacts/agent-prompts/developer-copilot-adapter.md",
