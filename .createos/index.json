@@ -1,7 +1,7 @@
 {
-  "generated_at": "2025-12-11T23:55:05Z",
+  "generated_at": "2025-12-11T23:57:50Z",
   "root": ".",
-  "file_count": 37,
+  "file_count": 38,
   "files": [
     ".github/agents/createos-architect.agent.md",
     ".github/agents/createos-developer.agent.md",
@@ -17,6 +17,7 @@
     "creation/04-artifacts/.gitkeep",
     "creation/04-artifacts/agent-prompts/README.md",
     "creation/04-artifacts/agent-prompts/architect-copilot-adapter.md",
+    "creation/04-artifacts/agent-prompts/architect-prompt-runtime.md",
     "creation/04-artifacts/agent-prompts/architect-prompt.md",
     "creation/04-artifacts/agent-prompts/developer-copilot-adapter.md",
     "creation/04-artifacts/agent-prompts/developer-prompt.md",
