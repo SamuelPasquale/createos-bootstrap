@@ -40,5 +40,17 @@
     "description": "Ship Resume Creation UX and end-to-end bootstrap + revocation tests (index validation, audit trace).",
     "status": "pending",
     "dependencies": ["T004"]
+  },
+  {
+    "id": "T008",
+    "description": "Define and document canonical file-location conventions (what belongs in goals, roadmap, artifacts, decisions, memory, tasks, and progress).",
+    "status": "pending",
+    "dependencies": ["T001"]
+  },
+  {
+    "id": "T009",
+    "description": "Design and implement V0.5 runtime using GitHub Copilot (Architect = Space, Developer = Agent) while preserving the existing V0 runtime as a fallback.",
+    "status": "pending",
+    "dependencies": ["T002", "T003", "T008"]
   }
 ]
