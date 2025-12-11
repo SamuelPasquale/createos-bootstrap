@@ -1,77 +1,80 @@
-# Session Start Protocol — C01: CreateOS Bootstrap (CreateOS-Native)
+# Session Start Protocol — C01: CreateOS Bootstrap
 
-**Status:** Transition to CreateOS-native startup. This protocol replaces the dual-chat V0 workaround with a deterministic, auditable session bootstrap backed by a Session Manager, scoped credentials, and first-class Creation memory.
+**Status:**  
+- **V0 protocol: Implemented and operational (canonical today).**  
+- **CreateOS-native protocol (Session Manager): Design only — not implemented.**
 
-## Purpose
+This document defines how to start and close a CreateOS Architect session in V0, using current ChatGPT and GitHub platform constraints, and records the *planned* CreateOS-native session startup design as an appendix.
 
-Provide a one-click, CreateOS-native way to start or resume an Architect session with:
+---
 
-- Persistent project memory across sessions
-- Direct mounting of backend artifacts (repo + storage) with explicit authorization
-- Deterministic, auditable session traces (index validation, commit SHA, memory snapshot)
-- Revocable, least-privilege connector consent
+## 1. Purpose
 
-## Roles
+Provide a **single, deterministic way** to:
 
-- **Architect** — ChatGPT Project (cognitive layer).
-- **Developer** — Codex (developer layer, repo write/PR executor).
-- **Session Manager** — Small CreateOS service issuing per-session tokens and exposing mount metadata.
-- **Consent UI** — Human-facing, auditable consent surface for connector scopes.
+1. Start an Architect session that has read access to the repository and can reconstruct Creation state from Git-backed artifacts.
+2. Close a working session in a way that updates progress logs, tasks, and memory so the next session can **warm-start** from the backend alone (even if chats are deleted).
+3. Document the **future** CreateOS-native session startup (Session Manager + Consent + Persistent Memory) as **design-only** for v1 and beyond.
 
-## Preconditions
+---
+
+## 2. Roles (V0)
+
+- **Architect** — ChatGPT Project session (cognitive layer).
+  - Reads the repo via GitHub connector.
+  - Reconstructs state from `.createos/index.json`, progress logs, tasks, memory, and decisions.
+  - Produces structured instructions for the Developer.
+
+- **Developer (Codex)** — ChatGPT / Codex chat with GitHub enabled (developer layer).
+  - Reads the live repo.
+  - Applies changes, generates diffs, and opens PRs.
+  - Runs tools like `tools/refresh_index.py` and `tools/close_session.py`.
+
+---
+
+## 3. Preconditions (V0)
 
 - Repository: `SamuelPasquale/createos-bootstrap` (branch: `main`).
-- Session Manager reachable and configured with:
-  - Signing key for short-lived session tokens
-  - Repo metadata (repo name, default branch, allowed connectors)
-  - Memory backend endpoint (append-only store)
-- Consent UI wired to Session Manager for human approval and revocation.
+- The repository is reachable via the **GitHub connector** in ChatGPT.
+- `.createos/index.json` exists and is the canonical file index (CI generated).
+- Session is being run inside the **CreateOS Project**, but the **GitHub connector must be attached *before*** the chat is moved into the Project (due to platform constraints).
 
-## Canonical CreateOS-Native Steps
+---
 
-1. **Request session (Architect → Session Manager)**
-   - Input: Creation ID (`C01`), requested scopes (repo read/write, memory read/write), optional storage mounts.
-   - Output: Signed session token (JWT), session ID, repo metadata (repo URL, default branch, last indexed commit), memory endpoint URL.
+## 4. Canonical V0 Session Start Protocol (Dual-Chat Boot)
 
-2. **Consent & least-privilege grant (Human → Consent UI)**
-   - Human is shown requested scopes, duration, and connector targets.
-   - Human approves or rejects. On approval, Session Manager records an auditable grant (session ID, scopes, expiry, actor) and returns a connector authorization handle.
+This is the **only supported, working startup sequence today**. All sessions must follow this.
 
-3. **Deterministic bootstrap (Architect)**
-   - Validate token signature, expiry, and scopes.
-   - Fetch repo metadata from Session Manager; confirm branch and latest indexed commit SHA.
-   - Mount repo using the provided connector handle; mount memory endpoint read/write.
-   - Load `.createos/index.json` (via mounted repo). On failure, request an index from Session Manager.
-   - Enumerate required files via index (creation.yaml, specs, memory, decisions, tasks, progress) and rehydrate cognitive state.
-   - Capture a bootstrap trace: session ID, commit SHA, index checksum, memory snapshot version, timestamp.
+### 4.1 Step 1 — Create a repo-enabled chat outside the Project
 
-### Step 3.x — Fast path: LATEST.json
-If present, **creation/08-progress/LATEST.json** is the fast-path for reconstructing the previous session. The Architect must load this file first and treat it as the canonical, human-approved summary of the last session (including `date`, `file`, `sha`, `summary`, and `next_steps`). If `LATEST.json` is missing or invalid, fall back to selecting the most recent dated file under `creation/08-progress/` by filename ordering.
+1. In ChatGPT, create a **new chat outside** the CreateOS Project.
+2. Use **Company knowledge → GitHub** to attach the repo:  
+   `SamuelPasquale/createos-bootstrap`
+3. Verify access by fetching at least one file (e.g. `README.md` or `creation/06-decisions/session-start-protocol.md`).
 
-4. **Developer flow (Codex)**
-   - Receives the Architect’s instruction package plus session token for scoped repo/memory access.
-   - Performs changes, commits, and returns PR. The session ID is attached to commit metadata for audit.
+If this step fails, **do not** proceed. The Architect requires direct GitHub access.
 
-5. **Revocation & rotation**
-   - Human can revoke the session via Consent UI; Session Manager invalidates the token and connector handle.
-   - Architect handles revocation errors by halting mutations and requesting a new session.
+---
 
-## Error handling
+### 4.2 Step 2 — Move the chat into the CreateOS Project
 
-- **Token validation failure**: abort bootstrap; request a fresh session from Session Manager.
-- **Consent not granted**: surface the missing scopes; do not proceed.
-- **Index unavailable**: request an authoritative index snapshot from Session Manager; log degraded mode.
-- **Memory endpoint unavailable**: continue in read-only mode with explicit warning; block writes until restored.
+1. Once the chat has GitHub attached and verified, **move this chat into the CreateOS Project**.
+2. The moved chat **retains the GitHub source**.  
+   This chat now becomes the persistent:
 
-## Auditability requirements
+> **Architect + Repo Access session (V0)**
 
-- Every session stores a bootstrap trace containing session ID, issued-at, commit SHA, index checksum, memory version, and approved scopes.
-- Connector grants include actor, timestamp, scope list, and expiry; revocations are recorded with reason.
-- Memory writes are versioned and append-only; each write links to session ID and commit SHA (if present).
+All Architect work for C01 should occur in this chat (until V1’s Session Manager exists).
 
-## Transitional guidance
+---
 
-- The V0 dual-chat pattern is deprecated. All new work should use the CreateOS-native flow above.
-- If Session Manager is unavailable, fall back to V0 only to unblock critical fixes; record the fallback in the progress log.
+### 4.3 Step 3 — Human issues the canonical boot message
 
-(End of protocol)
+In the Architect + Repo Access chat (now inside the Project):
+
+1. The human runs (locally or via GitHub UI/CI) `git rev-parse HEAD` on `main` to obtain the **latest commit SHA**.
+2. The human posts the canonical boot message:
+
+```text
+Latest SHA: <paste HEAD SHA>
+Load the repo.
