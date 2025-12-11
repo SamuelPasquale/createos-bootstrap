@@ -1,7 +1,7 @@
 {
-  "generated_at": "2025-12-11T03:44:05Z",
+  "generated_at": "2025-12-11T03:53:42Z",
   "root": ".",
-  "file_count": 28,
+  "file_count": 29,
   "files": [
     ".github/workflows/refresh-index.yml",
     ".gitignore",
@@ -14,6 +14,7 @@
     "creation/03-v0/v0-functional-spec.md",
     "creation/04-artifacts/.gitkeep",
     "creation/04-artifacts/c01-architecture.md",
+    "creation/04-artifacts/createos-architecture.md",
     "creation/04-artifacts/session-manager-mvp.md",
     "creation/05-memory/.gitkeep",
     "creation/05-memory/memory.md",
