@@ -1,0 +1,71 @@
+{
+  "session_id": "ARCH_20251212_153753_VTYX",
+  "branch": "main",
+  "head_sha": "078057897100e7c8b268631f496f2bdd467dcee4",
+  "generated_at": "2025-12-12T15:37:53.290935Z",
+  "dry_run": true,
+  "state": {
+    "latest_progress": {
+      "date": "2025-12-11",
+      "file": "creation/08-progress/2025-12-11.md",
+      "summary": "Previous session progress available",
+      "next_steps": []
+    },
+    "memory_file": "creation/05-memory/memory.md",
+    "tasks_file": "creation/07-tasks/tasks.json"
+  },
+  "tasks": {
+    "total": 9,
+    "open": 7,
+    "complete": 2,
+    "open_sample": [
+      {
+        "id": "T002",
+        "description": "Populate V0 Functional Spec in creation/03-v0.",
+        "status": "pending"
+      },
+      {
+        "id": "T003",
+        "description": "Populate V0 Demo Script & Acceptance Criteria in creation/03-v0.",
+        "status": "pending"
+      },
+      {
+        "id": "T005",
+        "description": "Prototype Session Manager service with per-session tokens and consent-linked connector handles.",
+        "status": "pending"
+      },
+      {
+        "id": "T006",
+        "description": "Implement persistent, append-only Creation memory API with versioned entries and manual compaction.",
+        "status": "pending"
+      },
+      {
+        "id": "T007",
+        "description": "Ship Resume Creation UX and end-to-end bootstrap + revocation tests (index validation, audit trace).",
+        "status": "pending"
+      },
+      {
+        "id": "T008",
+        "description": "Define and document canonical file-location conventions (what belongs in goals, roadmap, artifacts, decisions, memory, tasks, and progress).",
+        "status": "pending"
+      }
+    ]
+  },
+  "suggested_next_actions": [
+    {
+      "id": "A1",
+      "action": "Work on T002: Populate V0 Functional Spec in creation/03-v0.",
+      "task_id": "T002"
+    },
+    {
+      "id": "A2",
+      "action": "Work on T003: Populate V0 Demo Script & Acceptance Criteria in creation/03-v0.",
+      "task_id": "T003"
+    },
+    {
+      "id": "A3",
+      "action": "Work on T005: Prototype Session Manager service with per-session tokens and consent-linked connector handles.",
+      "task_id": "T005"
+    }
+  ]
+}
