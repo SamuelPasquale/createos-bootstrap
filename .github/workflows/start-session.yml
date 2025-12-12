@@ -64,9 +64,13 @@ jobs:
           # Copy boot report to LATEST.json
           cp boot-report.json creation/04-artifacts/boot/LATEST.json
           
-          # Add and commit
+          # Add and commit if there are changes
           git add creation/04-artifacts/boot/LATEST.json
-          git commit -m "chore: update session boot report [automated]" || echo "No changes to commit"
-          
-          # Push to main
-          git push origin ${{ inputs.branch || 'main' }}
+          if ! git diff --cached --quiet; then
+            git commit -m "chore: update session boot report [automated]"
+            # Push to target branch
+            git push origin ${{ inputs.branch || 'main' }}
+            echo "Boot report committed and pushed successfully"
+          else
+            echo "No changes to commit - boot report unchanged"
+          fi
