@@ -64,8 +64,10 @@ SESSION: (booting) – awaiting session report from GitHub
 Preferred (GitHub UI):
 - Open repo → Actions
 - Run workflow “CreateOS – Start Session” on main
-- After completion, type here:
-  boot report ready
+- After completion, type exactly (plain text, no formatting):
+
+boot report ready
+
 - Architect will read creation/04-artifacts/boot/LATEST.json and continue
 
 Fallback (Manual paste):
