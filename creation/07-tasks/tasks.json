@@ -9,13 +9,17 @@
     "id": "T002",
     "description": "Populate V0 Functional Spec in creation/03-v0.",
     "status": "pending",
-    "dependencies": ["T001"]
+    "dependencies": ["T001"],
+    "mode": "maintenance",
+    "notes": "V0 runtime is now in maintenance mode. This task is retained for fallback documentation only; no new V0 features should be added."
   },
   {
     "id": "T003",
     "description": "Populate V0 Demo Script & Acceptance Criteria in creation/03-v0.",
     "status": "pending",
-    "dependencies": ["T001"]
+    "dependencies": ["T001"],
+    "mode": "maintenance",
+    "notes": "V0 runtime is now in maintenance mode. This task is for minimal fallback runbook documentation only."
   },
   {
     "id": "T004",
@@ -26,31 +30,50 @@
   {
     "id": "T005",
     "description": "Prototype Session Manager service with per-session tokens and consent-linked connector handles.",
-    "status": "pending",
-    "dependencies": ["T004"]
+    "status": "superseded",
+    "dependencies": ["T004"],
+    "notes": "Superseded by V0.5 runtime implementation (T009). Session bootstrap now handled by GitHub Action + tools/start_session.py. Design references in creation/04-artifacts/session-manager-mvp.md are retained for historical context."
   },
   {
     "id": "T006",
     "description": "Implement persistent, append-only Creation memory API with versioned entries and manual compaction.",
     "status": "pending",
-    "dependencies": ["T004"]
+    "dependencies": ["T004"],
+    "notes": "Prioritize V0.5 context: memory writes should integrate with GitHub Action workflows and V0.5 agent patterns. Preserve V0 fallback behavior (manual tools/add_memory_entry.py)."
   },
   {
     "id": "T007",
     "description": "Ship Resume Creation UX and end-to-end bootstrap + revocation tests (index validation, audit trace).",
     "status": "pending",
-    "dependencies": ["T004"]
+    "dependencies": ["T004"],
+    "notes": "Prioritize V0.5 context: resume UX should align with 'start createOS' protocol and GitHub Action boot flow. Preserve V0 fallback behavior (LATEST.json warm-start)."
   },
   {
     "id": "T008",
     "description": "Define and document canonical file-location conventions (what belongs in goals, roadmap, artifacts, decisions, memory, tasks, and progress).",
-    "status": "pending",
-    "dependencies": ["T001"]
+    "status": "complete",
+    "dependencies": ["T001"],
+    "notes": "Completed. See creation/06-decisions/file-placement-conventions.md."
   },
   {
     "id": "T009",
     "description": "Design and implement V0.5 runtime using GitHub Copilot (Architect = Space, Developer = Agent) while preserving the existing V0 runtime as a fallback.",
+    "status": "complete",
+    "dependencies": ["T002", "T003", "T008"],
+    "notes": "Completed. V0.5 runtime implemented with agent prompts (creation/04-artifacts/agent-prompts/), GitHub Action (.github/workflows/start-session.yml), and session bootstrap tooling (tools/start_session.py). See creation/04-artifacts/v0.5-runtime-scope.md for details."
+  },
+  {
+    "id": "T010",
+    "description": "Define V0.5 smoke PR flow and acceptance criteria (session_id tagging, readiness banner parity, minimal doc-fix PR).",
     "status": "pending",
-    "dependencies": ["T002", "T003", "T008"]
+    "dependencies": ["T009"],
+    "notes": "Execute end-to-end V0.5 session flow: GitHub Action boot → Architect readiness → Developer PR → CI index refresh. Validate session_id tagging in commits and PR metadata, and verify boot JSON schema compliance."
+  },
+  {
+    "id": "T011",
+    "description": "Update README with a Runtime Mode section (V0.5 primary, V0 fallback; links to protocols and resume guidance).",
+    "status": "complete",
+    "dependencies": ["T009"],
+    "notes": "Completed. README.md now includes Runtime Mode section documenting V0.5 as primary and V0 as fallback, with references to agent prompts and session protocols."
   }
 ]

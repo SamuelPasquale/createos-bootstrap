@@ -7,11 +7,57 @@ This repository holds **C01 — CreateOS Bootstrap**: the minimal, Git-backed pr
 
 ## Purpose
 
-C01 demonstrates a working V0 of the CreateOS model:
+C01 demonstrates a working CreateOS model:
 
 - A Git-backed artifact graph for a single **Creation**.
 - Deterministic tooling for memory and task management.
-- A V0 runtime where an Architect (ChatGPT Project) and a Developer (Codex) collaborate to read, design, and modify the backend repo.
+- Dual runtime modes: V0.5 (primary) and V0 (fallback) for resilient, auditable agentic execution.
+
+---
+
+## Runtime Mode
+
+CreateOS Bootstrap supports **two runtime modes** to ensure both operational excellence and resilience:
+
+### Primary Runtime: V0.5 (GitHub Copilot)
+
+**Status**: Implemented and operational (primary as of 2025-12-12)
+
+V0.5 uses GitHub Copilot Spaces and Agents for streamlined, single-phrase session bootstrap:
+
+- **Architect** (Copilot Space) — Cognitive reasoning layer; rehydrates Creation state, produces work packages
+- **Developer** (Copilot Agent) — Execution layer; implements PRs with explicit diffs and tests
+
+**Session bootstrap**: Type `start createOS` in Architect Space → run GitHub Action → get readiness summary
+
+**Key references**:
+- Architect prompt: [`creation/04-artifacts/agent-prompts/architect-prompt.md`](creation/04-artifacts/agent-prompts/architect-prompt.md)
+- Developer prompt: [`creation/04-artifacts/agent-prompts/developer-prompt.md`](creation/04-artifacts/agent-prompts/developer-prompt.md)
+- Runtime scope: [`creation/04-artifacts/v0.5-runtime-scope.md`](creation/04-artifacts/v0.5-runtime-scope.md)
+- GitHub Action: [`.github/workflows/start-session.yml`](.github/workflows/start-session.yml)
+
+### Fallback Runtime: V0 (Dual-Chat + Git-Backed Tools)
+
+**Status**: Maintenance mode (retained for fallback and troubleshooting)
+
+V0 uses a dual-chat pattern with manual Git-backed tooling:
+
+- **Architect** (ChatGPT Project with GitHub connector) — Cognitive reasoning layer
+- **Developer** (Codex with GitHub access) — Execution layer
+
+**Session bootstrap**: Attach GitHub connector → move chat to Project → paste SHA → load index/memory
+
+**Key references**:
+- Session protocol: [`creation/06-decisions/session-start-protocol.md`](creation/06-decisions/session-start-protocol.md)
+- Close session tool: [`tools/close_session.py`](tools/close_session.py)
+- Warm-start via: `creation/08-progress/LATEST.json` (future)
+
+**V0 policy**: No new features; maintenance-only for reliable fallback.
+
+**When to use V0**:
+- GitHub Copilot unavailable or degraded
+- Emergency troubleshooting requiring manual control
+- Historical reference for V0 design patterns
 
 ---
 
@@ -21,21 +67,22 @@ C01 demonstrates a working V0 of the CreateOS model:
 - `creation/` — All project state:
   - `01-goals/` — high-level goals and intent.
   - `02-roadmap/` — roadmap (V0 → V1 → platform).
-  - `03-v0/` — V0 functional spec and demo criteria.
-  - `04-artifacts/` — generated artifacts and specs.
+  - `03-v0/` — V0 functional spec and demo criteria (maintenance mode).
+  - `04-artifacts/` — generated artifacts, specs, and agent prompts.
   - `05-memory/` — structured, append-only memory (`memory.md`).
   - `06-decisions/` — architectural decisions and protocols.
   - `07-tasks/` — task graph (`tasks.json`).
   - `08-progress/` — dated session logs.
-- `tools/` — operational scripts (index refresh, helpers).
+- `tools/` — operational scripts (index refresh, session management).
 - `.createos/index.json` — canonical file index (CI generated).
-- `.createos/manifest.json` — **(new)** lightweight manifest describing repo metadata and V0 workflow (created by this PR).
+
+For detailed file placement conventions, see: [`creation/06-decisions/file-placement-conventions.md`](creation/06-decisions/file-placement-conventions.md)
 
 ---
 
-## Canonical V0 Bootstrapping Workflow (Architect + Codex)
+## V0 Bootstrapping Workflow (Fallback Mode)
 
-This workflow is the **official, working** way to start deterministic CreateOS sessions for C01 *today* (V0), using the platform constraints we validated. **Do not replace these instructions** — they are the authoritative daily process until the CreateOS-native runtime is implemented.
+This workflow describes the **V0 dual-chat bootstrap** process, retained as a fallback when V0.5 (Copilot) is unavailable. For primary runtime, see **Runtime Mode** section above.
 
 **Roles**
 - **Architect (this ChatGPT Project)** — cognitive, long-horizon reasoning: designs creation intents, session protocols, and briefs Codex.
@@ -82,21 +129,25 @@ This workflow is the **official, working** way to start deterministic CreateOS s
 
 ---
 
-## Planned CreateOS-Native Session Startup (Design only — not implemented)
+## Session Manager Design (Superseded by V0.5)
 
-**Status & scope (Design only)** — This project *documents* a CreateOS-native session startup design (Session Manager, Consent UI, and Persistent Memory) but **the Session Manager and runtime services are not implemented** at this time. The design is captured in `creation/04-artifacts/session-manager-mvp.md` and tracked by the `v1-session-bootstrap` milestone and child issues. Until those services are delivered, the canonical V0 workflow above is the working process to be used today.
+**Status**: Design only — superseded by V0.5 runtime (T009)
 
-**High-level intent**
-- Session Manager: issue short-lived per-session tokens, provide repo metadata, and record bootstrap traces.
-- Consent UI: human consent flow for least-privilege connector authorization and revocation.
-- Persistent Memory Service: append-only, versioned Creation memory with read/write APIs.
-- Resume Creation UX: single-click flow that validates index and rehydrates memory.
+This project previously documented a Session Manager service design for CreateOS-native session startup, captured in `creation/04-artifacts/session-manager-mvp.md`. That design has been **superseded** by the V0.5 Copilot runtime implementation, which achieves session bootstrap via GitHub Actions and agent prompts.
 
-**Where to read the design**
-- Session Manager MVP blueprint: `creation/04-artifacts/session-manager-mvp.md`  
-- Session start protocol and v1 tasks: `creation/06-decisions/session-start-protocol.md` and the v1 milestone
+**Original intent** (now superseded):
+- Session Manager: issue short-lived per-session tokens, provide repo metadata, and record bootstrap traces
+- Consent UI: human consent flow for least-privilege connector authorization and revocation
+- Persistent Memory Service: append-only, versioned Creation memory with read/write APIs
+- Resume Creation UX: single-click flow that validates index and rehydrates memory
 
-**Key note**: This is a design and roadmap entry. Do not rely on the native session startup as being functional until T005–T007 are implemented and the Session Manager is deployed.
+**Current approach** (V0.5):
+- Session bootstrap via GitHub Action (`.github/workflows/start-session.yml`)
+- Boot JSON auto-committed to `creation/04-artifacts/boot/LATEST.json`
+- Architect reads boot report and emits readiness summary
+- Git-backed memory and progress logs (no separate service required)
+
+**Historical reference**: See `creation/04-artifacts/session-manager-mvp.md` for the original design. Task T005 is marked as `superseded` in `creation/07-tasks/tasks.json`.
 
 ---
 
@@ -109,10 +160,21 @@ This workflow is the **official, working** way to start deterministic CreateOS s
 
 ## Where to find authoritative docs
 
-- Session protocol (native MVP): `creation/06-decisions/session-start-protocol.md`
-- Session Manager + Memory blueprint: `creation/04-artifacts/session-manager-mvp.md`
+**V0.5 Runtime (Primary)**:
+- V0.5 runtime scope: `creation/04-artifacts/v0.5-runtime-scope.md`
+- Architect prompt: `creation/04-artifacts/agent-prompts/architect-prompt.md`
+- Developer prompt: `creation/04-artifacts/agent-prompts/developer-prompt.md`
+- GitHub Action: `.github/workflows/start-session.yml`
+
+**V0 Runtime (Fallback)**:
+- Session protocol: `creation/06-decisions/session-start-protocol.md`
+- Close session tool: `tools/close_session.py`
+
+**General**:
+- File placement conventions: `creation/06-decisions/file-placement-conventions.md`
 - Memory model: `creation/05-memory/memory.md`
-- Tools & scripts: `tools/refresh_index.py`, `tools/add_memory_entry.py`
+- Task graph: `creation/07-tasks/tasks.json`
+- Tools & scripts: `tools/refresh_index.py`, `tools/add_memory_entry.py`, `tools/start_session.py`
 
 ---
 
