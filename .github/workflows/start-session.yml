@@ -1,0 +1,53 @@
+name: CreateOS – Start Session
+
+on:
+  workflow_dispatch:
+    inputs:
+      branch:
+        description: 'Branch to start session from'
+        required: false
+        default: 'main'
+        type: string
+
+# Allow this workflow to read from the repo
+permissions:
+  contents: read
+
+jobs:
+  start-session:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.branch || 'main' }}
+      
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      
+      - name: Generate session boot report
+        id: boot
+        run: |
+          echo "Running start_session.py..."
+          python tools/start_session.py --branch "${{ inputs.branch || 'main' }}" --dry-run > boot-report.json
+          echo "Boot report generated successfully"
+          cat boot-report.json
+      
+      - name: Display boot report in logs
+        run: |
+          echo "=== CreateOS Session Boot Report ==="
+          echo "Copy the JSON below (from { to }) and paste it into your Architect Space:"
+          echo ""
+          cat boot-report.json
+          echo ""
+          echo "=== End of Boot Report ==="
+      
+      - name: Upload boot report as artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: boot-report
+          path: boot-report.json
+          retention-days: 7
