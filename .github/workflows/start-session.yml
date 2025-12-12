@@ -9,9 +9,9 @@ on:
         default: 'main'
         type: string
 
-# Allow this workflow to read from the repo
+# Allow this workflow to read from and write to the repo
 permissions:
-  contents: read
+  contents: write
 
 jobs:
   start-session:
@@ -51,3 +51,26 @@ jobs:
           name: boot-report
           path: boot-report.json
           retention-days: 7
+      
+      - name: Commit boot report to repo
+        run: |
+          # Configure git with bot identity
+          git config user.name "createos-bot"
+          git config user.email "createos-bot@users.noreply.github.com"
+          
+          # Create boot directory if it doesn't exist
+          mkdir -p creation/04-artifacts/boot
+          
+          # Copy boot report to LATEST.json
+          cp boot-report.json creation/04-artifacts/boot/LATEST.json
+          
+          # Add and commit if there are changes
+          git add creation/04-artifacts/boot/LATEST.json
+          if ! git diff --cached --quiet; then
+            git commit -m "chore: update session boot report [automated]"
+            # Push to target branch
+            git push origin ${{ inputs.branch || 'main' }}
+            echo "Boot report committed and pushed successfully"
+          else
+            echo "No changes to commit - boot report unchanged"
+          fi
