@@ -1,11 +1,12 @@
 {
-  "generated_at": "2025-12-12T14:23:53Z",
+  "generated_at": "2025-12-12T14:39:08Z",
   "root": ".",
-  "file_count": 38,
+  "file_count": 40,
   "files": [
     ".github/agents/createos-architect.agent.md",
     ".github/agents/createos-developer.agent.md",
     ".github/workflows/refresh-index.yml",
+    ".github/workflows/start-session.yml",
     ".gitignore",
     "README.md",
     "creation.yaml",
@@ -40,6 +41,7 @@
     "tools/add_memory_entry.py",
     "tools/close_session.py",
     "tools/refresh_index.py",
+    "tools/start_session.py",
     "tools/tasks.py"
   ]
 }
