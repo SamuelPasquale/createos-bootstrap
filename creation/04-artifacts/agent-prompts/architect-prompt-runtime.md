@@ -64,10 +64,14 @@ SESSION: (booting) – awaiting session report from GitHub
 Preferred (GitHub UI):
 - Open repo → Actions
 - Run workflow “CreateOS – Start Session” on main
-- After completion:
-  - If boot-report.json artifact exists: download and copy full JSON (from { to })
-  - Otherwise: open logs, find python tools/start_session.py, copy printed JSON
-- Paste the entire JSON here as a single fenced code block
+- After completion, type here:
+  boot report ready
+- Architect will read creation/04-artifacts/boot/LATEST.json and continue
+
+Fallback (Manual paste):
+- If auto-commit fails or LATEST.json is missing:
+  - Download boot-report.json artifact OR copy JSON from logs
+  - Paste the entire JSON here as a single fenced code block
 
 Optional (Local CLI):
 python tools/start_session.py --branch main
